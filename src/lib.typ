@@ -7,8 +7,15 @@
 // See https://sitandr.github.io/typst-examples-book/book/snippets/chapters/outlines.html#long-and-short-captions-for-the-outline
 #let in-outline = state("in-outline", false)
 
-#let flex-caption(long, short) = context { if in-outline.get() { short } else {
-long } }
+#let flex-caption(long, short) = (
+  context {
+    if in-outline.get() {
+      short
+    } else {
+      long
+    }
+  }
+)
 
 // ---
 
@@ -67,7 +74,13 @@ long } }
 ) = {
   // Set the document's metadata.
   set document(
-    title: title, author: author, date: if date != none { date } else { auto },
+    title: title,
+    author: author,
+    date: if date != none {
+      date
+    } else {
+      auto
+    },
   )
 
   // Set the body font.
@@ -75,11 +88,15 @@ long } }
 
   // Configure page size and margins.
   set page(
-    paper: paper-size, margin: (
-      bottom: 5cm, top: 4cm,
-      // The original LaTeX template references something called "hoffset", not sure what that is yet
-      inside: 26.2mm, outside: 37mm,
-    ), numbering: "1", number-align: right,
+    paper: paper-size,
+    margin: (
+      bottom: 5cm,
+      top: 4cm,
+      inside: 26.2mm,
+      outside: 37mm,
+    ),
+    numbering: "1",
+    number-align: right,
   )
 
   // Configure paragraph properties.
@@ -97,7 +114,7 @@ long } }
   // Style chapter headings.
   show heading.where(level: 1): it => {
     set text(size: 22pt)
-        // Start chapters on even pages
+    // Start chapters on even pages
     // FIXME: `pagebreak(to: "even")` replicates the behaviour seen in the
     // original template, except for an important detail: the resulting empty
     // pages still show the header and page number. This is not great and is the
@@ -109,20 +126,28 @@ long } }
     set heading(supplement: [Chapter])
 
     let black_rectangle = place(
-      dx: -page.margin.outside, dy: -1em, rect(fill: black, width: page.margin.outside - 5pt, height: 2em),
+      dx: -page.margin.outside,
+      dy: -1em,
+      rect(fill: black, width: page.margin.outside - 5pt, height: 2em),
     )
 
-    let heading_number = if heading.numbering == none { [] } else { counter(heading.where(level: 1)).display() }
+    let heading_number = if heading.numbering == none {
+      []
+    } else {
+      counter(heading.where(level: 1)).display()
+    }
     let white_heading_number = place(dx: -1em, text(fill: white, heading_number))
 
 
     // pagebreak(to: "even")
     // pagebreak()
-    // 
+    //
 
     v(16%)
     rect(
-      stroke: none, inset: 0em, black_rectangle + white_heading_number + it.body,
+      stroke: none,
+      inset: 0em,
+      black_rectangle + white_heading_number + it.body,
     )
   }
 
@@ -135,44 +160,44 @@ long } }
   // Set page header
   set page(
     header-ascent: 30%,
-    header: context{
+    header: context {
       if utils.is-chapter-page() {
         // no header
       } else if utils.is-empty-page() {
         // no header
       } else {
-      // Get current page number.
-      let page-number = here().page()
+        // Get current page number.
+        let page-number = here().page()
 
-      // [ #repr(query(<disable_header>).map(el => el.location().page()).slice(0, 5)) ]
-      // If the current page is the start of a chapter, don't show a header
-      let target = heading.where(level: 1)
-      if query(target).any(it => it.location().page() == page-number) {
-        // return [New chapter! page #here().page(), #i]
-        return []
-      }
-
-      // Find the chapter of the section we are currently in.
-      let before = query(target.before(here()))
-      if before.len() > 0 {
-        let current = before.last()
-
-        let chapter-title = current.body
-        let chapter-number = counter(heading.where(level: 1)).display()
-        // let chapter-number-text = [#current.supplement Chapter #chapter-number]
-        let chapter-number-text = [Chapter #chapter-number]
-
-        if current.numbering != none {
-          let (left-text, right-text) = if calc.odd(page-number) {
-            (chapter-number-text, chapter-title)
-          } else {
-            (chapter-title, chapter-number-text)
-          }
-          text(weight: "bold", fill-line(left-text, right-text))
-          v(-1em)
-          line(length: 100%, stroke: 0.5pt)
+        // [ #repr(query(<disable_header>).map(el => el.location().page()).slice(0, 5)) ]
+        // If the current page is the start of a chapter, don't show a header
+        let target = heading.where(level: 1)
+        if query(target).any(it => it.location().page() == page-number) {
+          // return [New chapter! page #here().page(), #i]
+          return []
         }
-      }
+
+        // Find the chapter of the section we are currently in.
+        let before = query(target.before(here()))
+        if before.len() > 0 {
+          let current = before.last()
+
+          let chapter-title = current.body
+          let chapter-number = counter(heading.where(level: 1)).display()
+          // let chapter-number-text = [#current.supplement Chapter #chapter-number]
+          let chapter-number-text = [Chapter #chapter-number]
+
+          if current.numbering != none {
+            let (left-text, right-text) = if calc.odd(page-number) {
+              (chapter-number-text, chapter-title)
+            } else {
+              (chapter-title, chapter-number-text)
+            }
+            text(weight: "bold", fill-line(left-text, right-text))
+            v(-1em)
+            line(length: 100%, stroke: 0.5pt)
+          }
+        }
       }
     },
   )
@@ -210,22 +235,25 @@ long } }
     numbering("(1.1)", h1, n)
   })
 
-  show math.equation.where(block: true): it => {
-    set align(left)
-    // Indent
-    pad(left: 2em, it)
-  }
+  // show math.equation.where(block: true): it => {
+  //   set align(left)
+  //   // Indent
+  //   pad(left: 2em, it)
+  // }
 
   // FIXME: Has no effect?
   set place(clearance: 2em)
 
-  set figure(numbering: n => {
-    let h1 = counter(heading).get().first()
-    numbering("1.1", h1, n)
-  }, gap: 1.5em)
+  set figure(
+    numbering: n => {
+      let h1 = counter(heading).get().first()
+      numbering("1.1", h1, n)
+    },
+    gap: 1.5em,
+  )
   set figure.caption(separator: [ -- ])
 
-  show figure.caption: it =>{
+  show figure.caption: it => {
     if it.kind == table {
       align(center, it)
     } else {
@@ -254,7 +282,9 @@ long } }
   // Show a small maroon circle next to external links.
   show link: it => {
     // Workaround for ctheorems package so that its labels keep the default link styling.
-    if type(it.dest) == label { return it }
+    if type(it.dest) == label {
+      return it
+    }
     it
     h(1.6pt)
     super(
