@@ -1,3 +1,6 @@
+#import "chapter_on_even_pages.typ" as utils
+#import utils: chapter-end
+
 #let fill-line(left-text, right-text) = [#left-text #h(1fr) #right-text]
 
 // The `in-outline` mechanism is for showing a short caption in the list of figures
@@ -94,6 +97,13 @@ long } }
   // Style chapter headings.
   show heading.where(level: 1): it => {
     set text(size: 22pt)
+        // Start chapters on even pages
+    // FIXME: `pagebreak(to: "even")` replicates the behaviour seen in the
+    // original template, except for an important detail: the resulting empty
+    // pages still show the header and page number. This is not great and is the
+    // subject of https://github.com/typst/typst/issues/2722.
+    // Solved by https://github.com/TGM-HIT/typst-diploma-thesis/blob/aee8bb654d40ac7efc905d7f88fa22f2edf9309b/src/utils.typ#L8-L111
+    pagebreak(to: "odd")
 
     // Has no effect, still shows "Section"
     set heading(supplement: [Chapter])
@@ -105,13 +115,10 @@ long } }
     let heading_number = if heading.numbering == none { [] } else { counter(heading.where(level: 1)).display() }
     let white_heading_number = place(dx: -1em, text(fill: white, heading_number))
 
-    // Start chapters on even pages
-    // FIXME: `pagebreak(to: "even")` replicates the behaviour seen in the
-    // original template, except for an important detail: the resulting empty
-    // pages still show the header and page number. This is not great and is the
-    // subject of https://github.com/typst/typst/issues/2722.
+
     // pagebreak(to: "even")
-    pagebreak()
+    // pagebreak()
+    // 
 
     v(16%)
     rect(
@@ -127,7 +134,13 @@ long } }
 
   // Set page header
   set page(
-    header-ascent: 30%, header: context{
+    header-ascent: 30%,
+    header: context{
+      if utils.is-chapter-page() {
+        // no header
+      } else if utils.is-empty-page() {
+        // no header
+      } else {
       // Get current page number.
       let page-number = here().page()
 
@@ -159,6 +172,7 @@ long } }
           v(-1em)
           line(length: 100%, stroke: 0.5pt)
         }
+      }
       }
     },
   )
@@ -248,5 +262,6 @@ long } }
     )
   }
 
+  // utils.enforce-chapter-end-placement()
   body
 }
