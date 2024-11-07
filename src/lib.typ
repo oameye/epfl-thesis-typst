@@ -92,7 +92,7 @@
     margin: (
       bottom: 5cm,
       top: 4cm,
-      inside: 26.2mm,
+      inside: 20mm,
       outside: 37mm,
     ),
     numbering: "1",
